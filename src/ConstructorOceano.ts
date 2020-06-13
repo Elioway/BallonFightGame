@@ -13,7 +13,7 @@ module Elioway.BallonFight{
             let sprite:Phaser.Sprite=null;
             let spriteConCuerpo:Phaser.Sprite=null;
 
-            for(var i=1;i<=cantidadBloques;i++){
+            for(let i=1;i<=cantidadBloques;i++){
 
                 if(i===1){
                     sprite=this.game.add.sprite(0,0,'gameAtlas','Mar/MarPunta/1');
@@ -21,7 +21,6 @@ module Elioway.BallonFight{
                     sprite.smoothed=false;
                     sprite.animations.add('olas',['Mar/MarPunta/1','Mar/MarPunta/2','Mar/MarPunta/3','Mar/MarPunta/4','Mar/MarPunta/5','Mar/MarPunta/6'],8,true);
                     sprite.animations.play('olas');
-                    sprite.alpha=0.9;
                     sprite.position.set(posicion.x+(-sprite.width/2)+(sprite.width*i),posicion.y+(sprite.height/2));
                     this.game.physics.p2.enable(sprite,this.debug);
                     (<Phaser.Physics.P2.Body>sprite.body).static=true;
@@ -40,7 +39,7 @@ module Elioway.BallonFight{
                     sprite.position.set(posicion.x+(-sprite.width)+(sprite.width*i),posicion.y);
                     sprite.animations.add('olas',['Mar/MarPunta/1','Mar/MarPunta/2','Mar/MarPunta/3','Mar/MarPunta/4','Mar/MarPunta/5','Mar/MarPunta/6'],8,true);
                     sprite.animations.play('olas');
-                    sprite.alpha=0.9;
+                    
                 }  
             }
             return spriteConCuerpo;
@@ -50,7 +49,7 @@ module Elioway.BallonFight{
             let sprite:Phaser.Sprite=null;
             let spriteConCuerpo:Phaser.Sprite=null;
 
-            for(var i=1;i<=cantidadBloques;i++){
+            for(let i=1;i<=cantidadBloques;i++){
 
                if(isPunta){
                     sprite=this.game.add.sprite(0,0,'gameAtlas','Mar/MarPunta/1');

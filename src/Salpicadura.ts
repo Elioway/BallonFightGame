@@ -10,7 +10,7 @@ module Elioway.BallonFight{
             'Mar/Splash/7','Mar/Splash/8','Mar/Splash/9'],15,false);
             this.play('splash',15,false,true);
             this.game.add.existing(this);
-             GestorGrupos.getInstancia(this.game).grupoSplash.add(this);
+            GestorGrupos.getInstancia(this.game).grupoSplash.add(this);
         }
 
     }

@@ -11,7 +11,6 @@ module Elioway.BallonFight{
 
             //Cargar los assets aqui.
             
-            this.load.image('logo','assets/ds_logo.png');
             this.load.atlas('gameAtlas','assets/ballonFight.png','assets/ballonFight.json',Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
             
         }

@@ -17,7 +17,6 @@ module Elioway.BallonFight{
         constructor(game: Phaser.Game){
 
             this.game=game;
-
             this.cursores=this.game.input.keyboard.createCursorKeys();
 
             this.btnLeft=this.game.add.button(10,this.game.height-64-32,'gameAtlas',null,null,'GamePad/2','GamePad/1','GamePad/2','GamePad/1');

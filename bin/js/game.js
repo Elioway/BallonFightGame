@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 window.onload = function () {
     var game = new Elioway.BallonFight.BallonFightGame();
 };
@@ -20,17 +25,16 @@ var Elioway;
             };
             Boot.prototype.create = function () {
                 this.game.time.advancedTiming = true;
-                this.input.maxPointers = 3;
+                this.input.maxPointers = 6;
                 this.game.physics.startSystem(Phaser.Physics.P2JS);
                 this.game.physics.p2.applyDamping = false;
                 this.game.physics.p2.gravity.y = 100;
-                if (this.game.device.desktop) {
-                    this.scale.pageAlignHorizontally = true;
-                    this.scale.pageAlignVertically = true;
-                }
-                else {
-                    this.game.scale.forceLandscape = true;
-                }
+                this.game.scale.forceLandscape = true;
+                this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+                this.game.scale.pageAlignHorizontally = true;
+                this.game.scale.pageAlignVertically = true;
+                this.game.scale.refresh();
+                this.stage.smoothed = false;
                 this.game.state.start('preloader', true, false);
             };
             return Boot;
@@ -58,7 +62,6 @@ var Elioway;
                         sprite.smoothed = false;
                         sprite.animations.add('olas', ['Mar/MarPunta/1', 'Mar/MarPunta/2', 'Mar/MarPunta/3', 'Mar/MarPunta/4', 'Mar/MarPunta/5', 'Mar/MarPunta/6'], 8, true);
                         sprite.animations.play('olas');
-                        sprite.alpha = 0.9;
                         sprite.position.set(posicion.x + (-sprite.width / 2) + (sprite.width * i), posicion.y + (sprite.height / 2));
                         this.game.physics.p2.enable(sprite, this.debug);
                         sprite.body.static = true;
@@ -76,7 +79,6 @@ var Elioway;
                         sprite.position.set(posicion.x + (-sprite.width) + (sprite.width * i), posicion.y);
                         sprite.animations.add('olas', ['Mar/MarPunta/1', 'Mar/MarPunta/2', 'Mar/MarPunta/3', 'Mar/MarPunta/4', 'Mar/MarPunta/5', 'Mar/MarPunta/6'], 8, true);
                         sprite.animations.play('olas');
-                        sprite.alpha = 0.9;
                     }
                 }
                 return spriteConCuerpo;
@@ -127,7 +129,8 @@ var Elioway;
                         sprite.smoothed = false;
                         sprite.position.set(posicion.x + (-sprite.width / 2) + (sprite.width * i), posicion.y + (sprite.height / 2));
                         this.game.physics.p2.enable(sprite, this.debug);
-                        sprite.body.static = true;
+                        //(<Phaser.Physics.P2.Body>sprite.body).static = true;
+                        sprite.body.kinematic = true;
                         sprite.body.clearShapes();
                         sprite.body.addRectangle(sprite.width * cantidadBloques, sprite.height / 1.5, (sprite.width * cantidadBloques) / 2 - (sprite.width / 2), -sprite.height / 9);
                         sprite.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(this.game).terrenoMaterial);
@@ -162,7 +165,8 @@ var Elioway;
                             sprite.smoothed = false;
                             sprite.position.set(posicion.x + (-sprite.width / 2) + (sprite.width * i), posicion.y - (sprite.height / 2) + sprite.height * k);
                             this.game.physics.p2.enable(sprite, this.debug);
-                            sprite.body.static = true;
+                            //(<Phaser.Physics.P2.Body>sprite.body).static = true;
+                            sprite.body.kinematic = true;
                             sprite.body.clearShapes();
                             sprite.body.addRectangle(sprite.width * largo, sprite.height * ancho, (sprite.width * largo) / 2 - (sprite.width / 2), (sprite.height * ancho / 2) - (sprite.height / 2.5));
                             sprite.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(this.game).terrenoMaterial);
@@ -210,7 +214,8 @@ var Elioway;
                             sprite.smoothed = false;
                             sprite.position.set(posicion.x + (-sprite.width / 2) + (sprite.width * i), posicion.y - (sprite.height / 2) + sprite.height * k);
                             this.game.physics.p2.enable(sprite, this.debug);
-                            sprite.body.static = true;
+                            //(<Phaser.Physics.P2.Body>sprite.body).static = true;
+                            sprite.body.kinematic = true;
                             sprite.body.clearShapes();
                             sprite.body.addRectangle(sprite.width * largo, sprite.height * ancho, (sprite.width * largo) / 2 - (sprite.width / 2), (sprite.height * ancho / 2) - (sprite.height / 2.5));
                             sprite.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(this.game).terrenoMaterial);
@@ -294,13 +299,239 @@ var Elioway;
 (function (Elioway) {
     var BallonFight;
     (function (BallonFight) {
+        var Enemigo = (function (_super) {
+            __extends(Enemigo, _super);
+            function Enemigo(game, x, y, colorGlobo, jugador) {
+                var _this = _super.call(this, game, x, y, 'gameAtlas', 'Enemigo/Quieto/1') || this;
+                _this.direccion = "R";
+                _this.direccionActual = "R";
+                _this.velocidadMaxima = 80;
+                _this.player = jugador;
+                _this.smoothed = false;
+                _this.anchor.set(0.5);
+                _this.outOfBoundsKill = true;
+                _this.name = "Enemigo";
+                _this.cabeza = new Phaser.Sprite(_this.game, _this.x, _this.y, '', '');
+                _this.cabeza.anchor.set(0.5);
+                _this.cabeza.name = 'CabezaEnemigo';
+                _this.game.physics.p2.enable(_this.cabeza, false);
+                _this.cabeza.body.clearShapes();
+                _this.cabeza.body.setCircle(_this.width / 6, 0, -_this.height / 8);
+                _this.cabeza.body.fixedRotation = true;
+                _this.cabeza.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(_this.game).grupoColisionCabeza);
+                BallonFight.GestorGrupos.getInstancia(_this.game).configurarColisionamiento(_this.cabeza, 'Cabeza');
+                _this.game.add.existing(_this.cabeza);
+                BallonFight.GestorGrupos.getInstancia(_this.game).grupoEnemigo.add(_this.cabeza);
+                //Paracaidas
+                _this.paracaidas = new Phaser.Sprite(_this.game, _this.x, _this.y - _this.height / 2.5, 'gameAtlas', 'Globo/Paracaidas/1');
+                _this.paracaidas.name = "Paracaidas";
+                _this.paracaidas.anchor.setTo(0.5);
+                _this.paracaidas.smoothed = false;
+                _this.paracaidas.visible = false;
+                _this.game.physics.p2.enable(_this.paracaidas, false);
+                _this.paracaidas.body.data.gravityScale = 0;
+                _this.paracaidas.body.clearShapes();
+                _this.paracaidas.body.addRectangle(_this.paracaidas.width / 2, _this.paracaidas.height / 2, 0, 4);
+                _this.paracaidas.body.data.shapes[0].sensor = true;
+                _this.paracaidas.body.fixedRotation = true;
+                _this.paracaidas.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(_this.game).globoPlayerMaterial);
+                _this.paracaidas.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(_this.game).grupoColisionEnemigo);
+                BallonFight.GestorGrupos.getInstancia(_this.game).configurarColisionamiento(_this.paracaidas, "GloboEnemigo");
+                _this.game.add.existing(_this.paracaidas);
+                BallonFight.GestorGrupos.getInstancia(_this.game).grupoParacaidas.add(_this.paracaidas);
+                _this.twenParacaidas = _this.game.tweens.create(_this.paracaidas.scale);
+                //Globo
+                _this.globo = new Phaser.Sprite(_this.game, _this.x, _this.y - _this.height / 1.2, 'gameAtlas', 'Globo/GloboReventando/' + colorGlobo + '/1');
+                _this.globo.anchor.set(0.5);
+                _this.globo.smoothed = false;
+                _this.globo.visible = false;
+                _this.globo.animations.add('normal', ['Globo/GloboReventando/' + colorGlobo + '/1'], 1, true);
+                _this.globo.animations.add('reventando', ['Globo/GloboReventando/' + colorGlobo + '/1', 'Globo/GloboReventando/' + colorGlobo + '/2', 'Globo/GloboReventando/' + colorGlobo + '/3', 'Globo/GloboReventando/' + colorGlobo + '/4', 'Globo/GloboReventando/' + colorGlobo + '/5', 'Globo/GloboReventando/' + colorGlobo + '/6'], 10, true);
+                _this.globo.animations.add('inflandose', ['Globo/GloboInflandose/' + colorGlobo + '/1', 'Globo/GloboInflandose/' + colorGlobo + '/2', 'Globo/GloboInflandose/' + colorGlobo + '/1', 'Globo/GloboInflandose/' + colorGlobo + '/2', 'Globo/GloboInflandose/' + colorGlobo + '/1', 'Globo/GloboInflandose/' + colorGlobo + '/2',
+                    'Globo/GloboInflandose/' + colorGlobo + '/3', 'Globo/GloboInflandose/' + colorGlobo + '/2', 'Globo/GloboInflandose/' + colorGlobo + '/3', 'Globo/GloboInflandose/' + colorGlobo + '/2', 'Globo/GloboInflandose/' + colorGlobo + '/3', 'Globo/GloboInflandose/' + colorGlobo + '/2',
+                    'Globo/GloboInflandose/' + colorGlobo + '/3', 'Globo/GloboInflandose/' + colorGlobo + '/4', 'Globo/GloboInflandose/' + colorGlobo + '/3', 'Globo/GloboInflandose/' + colorGlobo + '/4', 'Globo/GloboInflandose/' + colorGlobo + '/3', 'Globo/GloboInflandose/' + colorGlobo + '/4',
+                    'Globo/GloboInflandose/' + colorGlobo + '/5', 'Globo/GloboInflandose/' + colorGlobo + '/4', 'Globo/GloboInflandose/' + colorGlobo + '/5', 'Globo/GloboInflandose/' + colorGlobo + '/4', 'Globo/GloboInflandose/' + colorGlobo + '/5', 'Globo/GloboInflandose/' + colorGlobo + '/4',
+                    'Globo/GloboInflandose/' + colorGlobo + '/5', 'Globo/GloboInflandose/' + colorGlobo + '/6', 'Globo/GloboInflandose/' + colorGlobo + '/5', 'Globo/GloboInflandose/' + colorGlobo + '/6', 'Globo/GloboInflandose/' + colorGlobo + '/5', 'Globo/GloboInflandose/' + colorGlobo + '/6',], 8, false);
+                _this.game.physics.p2.enable(_this.globo, false);
+                _this.globo.body.data.gravityScale = 0;
+                _this.globo.body.clearShapes();
+                _this.globo.body.addCircle(_this.globo.width / 4.5, 1.5, -2);
+                _this.globo.body.fixedRotation = true;
+                _this.globo.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(_this.game).globoPlayerMaterial);
+                _this.globo.body.collideWorldBounds = true;
+                _this.globo.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(_this.game).grupoColisionEnemigo);
+                BallonFight.GestorGrupos.getInstancia(_this.game).configurarColisionamiento(_this.globo, "GloboEnemigo");
+                _this.game.add.existing(_this.globo);
+                _this.globo.animations.play('quieto');
+                _this.animations.add('quieto', ['Enemigo/Quieto/1', 'Enemigo/Quieto/2', 'Enemigo/Quieto/3', 'Enemigo/Quieto/2'], 5, true);
+                _this.animations.add('volando', ['Enemigo/Volando/1', 'Enemigo/Volando/2', 'Enemigo/Volando/3', 'Enemigo/Volando/4', 'Enemigo/Volando/5', 'Enemigo/Volando/4', 'Enemigo/Volando/3', 'Enemigo/Volando/2'], 38, true);
+                _this.animations.add('inflandoGlobo', ['Enemigo/InflandoGlobo/1', 'Enemigo/InflandoGlobo/2', 'Enemigo/InflandoGlobo/3'], 5, true);
+                _this.animations.add('cayendoParacaidas', ['Enemigo/CayendoParacaidas/1'], 1, true);
+                _this.animations.add('cayendo', ['Enemigo/Cayendo/1', 'Enemigo/Cayendo/2', 'Enemigo/Cayendo/3', 'Enemigo/Cayendo/4', 'Enemigo/Cayendo/5', 'Enemigo/Cayendo/4', 'Enemigo/Cayendo/3', 'Enemigo/Cayendo/2'], 25, true);
+                var sensorColision = null;
+                _this.game.physics.p2.enable(_this, false);
+                _this.body.data.gravityScale = 0;
+                _this.body.clearShapes();
+                _this.body.setRectangle(_this.width / 2, _this.height);
+                sensorColision = _this.body.addRectangle(10, _this.height * 1.5, _this.height / 1.5, -_this.height / 3);
+                sensorColision.sensor = true;
+                _this.idColisionRight = sensorColision.id;
+                sensorColision = _this.body.addRectangle(10, _this.height * 1.5, -_this.height / 1.5, -_this.height / 3);
+                sensorColision.sensor = true;
+                _this.idColisionLeft = sensorColision.id;
+                sensorColision = _this.body.addRectangle(_this.width * 1.3, 10, 0, _this.height / 1.5);
+                sensorColision.sensor = true;
+                _this.idColisionBot = sensorColision.id;
+                sensorColision = _this.body.addRectangle(_this.width * 1.3, 10, 0, -_this.height / 0.75);
+                sensorColision.sensor = true;
+                _this.idColisionTop = sensorColision.id;
+                _this.ColiosionReventadorPico = _this.body.addRectangle(5, 2, 12, -5.4);
+                _this.ColiosionReventadorPico.sensor = true;
+                _this.idColisionReventadorPico = _this.ColiosionReventadorPico.id;
+                _this.ColiosionReventadorPie = _this.body.addRectangle(5, 5, 5, 15);
+                _this.ColiosionReventadorPie.sensor = true;
+                _this.idColisionReventadorPie = _this.ColiosionReventadorPie.id;
+                _this.sensorSuelo = _this.body.addRectangle(_this.width / 2.5, 5, 0, 16);
+                _this.sensorSuelo.sensor = true;
+                _this.idSensorSuelo = _this.sensorSuelo.id;
+                _this.body.fixedRotation = true;
+                _this.body.mass = 10;
+                _this.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(_this.game).enemigoMaterial);
+                _this.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(_this.game).grupoColisionEnemigo);
+                _this.restriccionGlobo = _this.game.physics.p2.createLockConstraint(_this.body, _this.globo.body, [0, _this.height / 1.2], 0);
+                _this.game.physics.p2.createLockConstraint(_this.body, _this.paracaidas.body, [0, _this.height / 2.5], 0);
+                _this.game.physics.p2.createLockConstraint(_this.body, _this.cabeza.body, [0, _this.height / 7], 0);
+                BallonFight.GestorGrupos.getInstancia(_this.game).configurarColisionamiento(_this, 'Enemigo');
+                _this.game.add.existing(_this);
+                BallonFight.GestorGrupos.getInstancia(_this.game).grupoEnemigo.add(_this);
+                _this.animations.play('quieto');
+                _this.ia = new BallonFight.IAEnemigo(_this.game, _this);
+                return _this;
+            }
+            Enemigo.prototype.update = function () {
+                this.ia.update();
+            };
+            Enemigo.prototype.inflarGlobo = function () {
+                if (!this.globo.alive) {
+                    this.globo.revive();
+                    this.globo.body.setZeroVelocity();
+                    this.globo.body.x = this.x;
+                    this.globo.body.y = this.y - 30;
+                    this.globo.body.kinematic = false;
+                    this.globo.body.static = false;
+                    this.restriccionGlobo = this.game.physics.p2.createLockConstraint(this.body, this.globo.body, [0, this.height / 1.2], 0);
+                    this.globo.body.data.shapes[0].sensor = false;
+                }
+                this.globo.visible = true;
+                this.play("inflandoGlobo");
+                this.globo.animations.play('inflandose').onComplete.add(this.terminoInflarGlobo, this);
+            };
+            Enemigo.prototype.volar = function (dirX, dirY) {
+                this.body.applyForce([dirX, dirY], 0, 0);
+                if (this.body.velocity.x < 0) {
+                    if (this.body.velocity.x < -this.velocidadMaxima) {
+                        this.body.velocity.x = -this.velocidadMaxima;
+                    }
+                }
+                else {
+                    if (this.body.velocity.x > this.velocidadMaxima) {
+                        this.body.velocity.x = this.velocidadMaxima;
+                    }
+                }
+                if (this.body.velocity.y < 0) {
+                    if (this.body.velocity.y < -this.velocidadMaxima) {
+                        this.body.velocity.y = -this.velocidadMaxima;
+                    }
+                }
+                else {
+                    if (this.body.velocity.y > this.velocidadMaxima) {
+                        this.body.velocity.y = this.velocidadMaxima;
+                    }
+                }
+                if (dirX > 0) {
+                    this.setScaleMinMax(-1, 1, -1, 1);
+                    this.direccionActual = "R";
+                }
+                else {
+                    this.setScaleMinMax(1, 1, 1, 1);
+                    this.direccionActual = "L";
+                }
+                if (this.direccionActual != this.direccion) {
+                    if (this.direccionActual == "R") {
+                        this.body.removeShape(this.ColiosionReventadorPico);
+                        this.ColiosionReventadorPico = this.body.addRectangle(5, 2, -12, -5.4);
+                        this.ColiosionReventadorPico.sensor = true;
+                        this.idColisionReventadorPico = this.ColiosionReventadorPico.id;
+                        this.body.removeShape(this.ColiosionReventadorPie);
+                        this.ColiosionReventadorPie = this.body.addRectangle(5, 5, -5, 15);
+                        this.ColiosionReventadorPie.sensor = true;
+                        this.idColisionReventadorPie = this.ColiosionReventadorPie.id;
+                    }
+                    else {
+                        this.body.removeShape(this.ColiosionReventadorPico);
+                        this.ColiosionReventadorPico = this.body.addRectangle(5, 2, 12, -5.4);
+                        this.ColiosionReventadorPico.sensor = true;
+                        this.idColisionReventadorPico = this.ColiosionReventadorPico.id;
+                        this.body.removeShape(this.ColiosionReventadorPie);
+                        this.ColiosionReventadorPie = this.body.addRectangle(5, 5, 5, 15);
+                        this.ColiosionReventadorPie.sensor = true;
+                        this.idColisionReventadorPie = this.ColiosionReventadorPie.id;
+                    }
+                    this.direccion = this.direccionActual;
+                    this.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(this.game).enemigoMaterial);
+                    this.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(this.game).grupoColisionEnemigo);
+                }
+            };
+            Enemigo.prototype.caerParacaidas = function () {
+                this.ia.puedeVolar = false;
+                this.ia.cayendoParacaidas = true;
+                this.animations.play("cayendoParacaidas");
+                this.paracaidas.scale.setTo(0);
+                this.paracaidas.visible = true;
+                this.twenParacaidas.to({ x: 1, y: 1 }, 1000, Phaser.Easing.Elastic.InOut, true);
+                this.body.mass = 500;
+                this.body.velocity.y = 0;
+                this.body.data.gravityScale = 0.2;
+            };
+            Enemigo.prototype.caer = function () {
+                this.ia.puedeVolar = false;
+                this.ia.cayendoParacaidas = false;
+                this.animations.play("cayendo");
+                this.body.setZeroVelocity();
+                this.body.data.shapes[0].sensor = true;
+                this.body.data.gravityScale = 1;
+            };
+            Enemigo.prototype.reventarGlobo = function () {
+                this.game.physics.p2.removeConstraint(this.restriccionGlobo);
+                this.globo.body.setZeroVelocity();
+                this.globo.body.static = true;
+                this.globo.body.data.shapes[0].sensor = true;
+                this.globo.animations.play("reventando", 10, false, true);
+            };
+            Enemigo.prototype.terminoInflarGlobo = function () {
+                if (this.animations.currentAnim.name != "cayendo") {
+                    this.globo.animations.play("normal");
+                    this.animations.play('volando');
+                    this.ia.puedeVolar = true;
+                    this.ia.retrasarVuelo();
+                }
+            };
+            return Enemigo;
+        }(Phaser.Sprite));
+        BallonFight.Enemigo = Enemigo;
+    })(BallonFight = Elioway.BallonFight || (Elioway.BallonFight = {}));
+})(Elioway || (Elioway = {}));
+var Elioway;
+(function (Elioway) {
+    var BallonFight;
+    (function (BallonFight) {
         var BallonFightGame = (function (_super) {
             __extends(BallonFightGame, _super);
             function BallonFightGame() {
-                var _this = _super.call(this, 800, 480, Phaser.CANVAS, '', null) || this;
+                var _this = _super.call(this, 800, 480, Phaser.CANVAS, '', null, false, false) || this;
                 _this.state.add('boot', BallonFight.Boot, false);
                 _this.state.add('preloader', BallonFight.Preloader, false);
-                _this.state.add('level1', BallonFight.Level1);
+                _this.state.add('level1', BallonFight.Level1, false);
                 _this.state.start('boot');
                 return _this;
             }
@@ -444,6 +675,8 @@ var Elioway;
                 this.grupoTerreno = this.game.add.group();
                 this.grupoNube = this.game.add.group();
                 this.grupoElectroEstrella = this.game.add.group();
+                this.grupoParacaidas = this.game.add.group();
+                this.grupoEnemigo = this.game.add.group();
                 this.grupoJugador = this.game.add.group();
                 this.grupoPez = this.game.add.group();
                 this.grupoOceanoExterior = this.game.add.group();
@@ -453,6 +686,8 @@ var Elioway;
                 this.grupoColisionElectroEstrella = this.game.physics.p2.createCollisionGroup();
                 this.grupoColisionOceano = this.game.physics.p2.createCollisionGroup();
                 this.grupoColisionGloboJugador = this.game.physics.p2.createCollisionGroup();
+                this.grupoColisionGloboEnemigo = this.game.physics.p2.createCollisionGroup();
+                this.grupoColisionEnemigo = this.game.physics.p2.createCollisionGroup();
                 this.grupoColisionJugador = this.game.physics.p2.createCollisionGroup();
                 this.grupoColisionMandibulaPez = this.game.physics.p2.createCollisionGroup();
                 this.game.physics.p2.updateBoundsCollisionGroup();
@@ -473,7 +708,7 @@ var Elioway;
             };
             GestorGrupos.prototype.configurarColisionamiento = function (sprite, tipo) {
                 if (tipo == "Terreno") {
-                    sprite.body.collides([this.grupoColisionElectroEstrella, this.grupoColisionJugador, this.grupoColisionGloboJugador]);
+                    sprite.body.collides([this.grupoColisionElectroEstrella, this.grupoColisionJugador, this.grupoColisionGloboJugador, this.grupoColisionEnemigo]);
                 }
                 else if (tipo == "Oceano") {
                     sprite.body.collides([this.grupoColisionElectroEstrella, this.grupoColisionCabeza]);
@@ -482,16 +717,22 @@ var Elioway;
                     sprite.body.collides([this.grupoColisionTerreno, this.grupoColisionOceano, this.grupoColisionJugador]);
                 }
                 else if (tipo == "Jugador") {
-                    sprite.body.collides([this.grupoColisionTerreno, this.grupoColisionElectroEstrella, this.grupoColisionMandibulaPez]);
+                    sprite.body.collides([this.grupoColisionTerreno, this.grupoColisionElectroEstrella, this.grupoColisionMandibulaPez, this.grupoColisionEnemigo, this.grupoColisionGloboEnemigo]);
                 }
                 else if (tipo == "GloboJugador") {
-                    sprite.body.collides([this.grupoColisionTerreno]);
+                    sprite.body.collides([this.grupoColisionTerreno, this.grupoColisionEnemigo, this.grupoColisionGloboEnemigo]);
+                }
+                else if (tipo == 'GloboEnemigo') {
+                    sprite.body.collides([this.grupoColisionTerreno, this.grupoColisionGloboJugador, this.grupoColisionJugador]);
                 }
                 else if (tipo == 'Cabeza') {
                     sprite.body.collides([this.grupoColisionOceano]);
                 }
                 else if (tipo == 'MandibulaPez') {
                     sprite.body.collides([this.grupoColisionJugador]);
+                }
+                else if (tipo == 'Enemigo') {
+                    sprite.body.collides([this.grupoColisionTerreno, this.grupoColisionJugador, this.grupoColisionGloboJugador]);
                 }
             };
             return GestorGrupos;
@@ -509,6 +750,7 @@ var Elioway;
                 this.worldMaterial = this.game.physics.p2.createMaterial('worldMaterial');
                 this.terrenoMaterial = this.game.physics.p2.createMaterial('terrenoMaterial');
                 this.electroEstrellaMaterial = this.game.physics.p2.createMaterial('electroEstrellaMaterial');
+                this.enemigoMaterial = this.game.physics.p2.createMaterial('enemigoMaterial');
                 this.jugadorMaterial = this.game.physics.p2.createMaterial('jugadorMaterial');
                 this.globoPlayerMaterial = this.game.physics.p2.createMaterial('globoPlayerMaterial');
                 this.mandibulaPezMaterial = this.game.physics.p2.createMaterial('mandibulaPezMaterial');
@@ -530,6 +772,14 @@ var Elioway;
                 this.rellenarOpciones2(this.cm);
                 this.cm = this.game.physics.p2.createContactMaterial(this.jugadorMaterial, this.mandibulaPezMaterial);
                 this.rellenarOpciones2(this.cm);
+                this.cm = this.game.physics.p2.createContactMaterial(this.enemigoMaterial, this.terrenoMaterial);
+                this.rellenarOpciones2(this.cm);
+                this.cm = this.game.physics.p2.createContactMaterial(this.enemigoMaterial, this.jugadorMaterial);
+                this.rellenarOpciones(this.cm);
+                this.cm = this.game.physics.p2.createContactMaterial(this.globoPlayerMaterial, this.jugadorMaterial);
+                this.rellenarOpciones(this.cm);
+                this.cm = this.game.physics.p2.createContactMaterial(this.globoPlayerMaterial, this.globoPlayerMaterial);
+                this.rellenarOpciones(this.cm);
             }
             GestorMaterialesContacto.getInstancia = function (game) {
                 if (game === void 0) { game = null; }
@@ -559,6 +809,196 @@ var Elioway;
             return GestorMaterialesContacto;
         }());
         BallonFight.GestorMaterialesContacto = GestorMaterialesContacto;
+    })(BallonFight = Elioway.BallonFight || (Elioway.BallonFight = {}));
+})(Elioway || (Elioway = {}));
+var Elioway;
+(function (Elioway) {
+    var BallonFight;
+    (function (BallonFight) {
+        var IAEnemigo = (function () {
+            function IAEnemigo(game, enemigo) {
+                this.dir = { dirX: 0, dirY: 0 };
+                this.direccionZigZag = "R";
+                this.game = game;
+                this.enemigo = enemigo;
+                this.puedeVolar = false;
+                this.cayendoParacaidas = false;
+                this.timerInflarGlobo = new Phaser.Timer(game, true);
+                game.time.add(this.timerInflarGlobo);
+                this.timerInflarGlobo.add(3000, enemigo.inflarGlobo, enemigo);
+                this.timerInflarGlobo.start();
+                this.timerZigZagCaida = new Phaser.Timer(game, false);
+                game.time.add(this.timerZigZagCaida);
+                this.timerZigZagCaida.loop(2000, this.zigZag, this);
+                this.enemigo.body.onBeginContact.add(this.contactoOtroBody, this);
+                this.enemigo.globo.body.onBeginContact.add(this.contactoGlobo, this);
+                this.enemigo.paracaidas.body.onBeginContact.add(this.contactoParacaidas, this);
+            }
+            IAEnemigo.prototype.update = function () {
+                if (this.puedeVolar) {
+                    this.enemigo.volar(this.dir.dirX, this.dir.dirY);
+                    if (this.enemigo.body.y > this.game.height - 64 - 16) {
+                        this.cambiarDireccionTop();
+                    }
+                }
+                if (this.cayendoParacaidas) {
+                    if (this.enemigo.body.velocity.y > 20) {
+                        this.enemigo.body.velocity.y = 20;
+                    }
+                    if (this.enemigo.body.y > this.game.height - 64 - 16) {
+                        this.enemigo.body.data.shapes[0].sensor = true;
+                    }
+                }
+            };
+            IAEnemigo.prototype.zigZag = function () {
+                if (this.direccionZigZag == "R") {
+                    this.enemigo.body.moveLeft(20);
+                    this.direccionZigZag = "L";
+                }
+                else {
+                    this.enemigo.body.moveRight(20);
+                    this.direccionZigZag = "R";
+                }
+            };
+            IAEnemigo.prototype.numeroAleatorio = function (min, max) {
+                return Math.random() * (max - min) + min;
+            };
+            IAEnemigo.prototype.cambiarDireccion = function () {
+                this.dir.dirX = this.numeroAleatorio(-80, 80);
+                this.dir.dirY = this.numeroAleatorio(-80, 80);
+            };
+            IAEnemigo.prototype.empezarTimerVolar = function () {
+                this.dir.dirX = 0;
+                this.dir.dirY = 0;
+                this.crearTimerVolar();
+            };
+            IAEnemigo.prototype.crearTimerVolar = function () {
+                this.timerVolarXNivel = new Phaser.Timer(this.game, false);
+                this.game.time.add(this.timerVolarXNivel);
+                this.cambiarDireccion();
+                this.cambiarDireccionTop();
+                this.timerVolarXNivel.loop(this.numeroAleatorio(1000, 3000), this.cambiarDireccion, this);
+                this.timerVolarXNivel.start();
+            };
+            IAEnemigo.prototype.retrasarVuelo = function () {
+                this.timerRetrasarVuelo = new Phaser.Timer(this.game, false);
+                this.game.time.add(this.timerRetrasarVuelo);
+                this.timerRetrasarVuelo.add(100, this.empezarTimerVolar, this);
+                this.timerRetrasarVuelo.start();
+            };
+            IAEnemigo.prototype.contactoGlobo = function (bodyA, bodyB, shapeA, shapeB) {
+                if (this.puedeVolar) {
+                    if (bodyA) {
+                        if (shapeB.id == this.enemigo.player.idColisionReventadorPie) {
+                            this.enemigo.player.establecerColisionGlobo();
+                            this.enemigo.reventarGlobo();
+                            this.enemigo.caerParacaidas();
+                            this.zigZag();
+                            this.timerZigZagCaida.start();
+                        }
+                    }
+                }
+            };
+            IAEnemigo.prototype.contactoParacaidas = function (bodyA, bodyB, shapeA, shapeB) {
+                if (!this.puedeVolar && this.cayendoParacaidas) {
+                    if (bodyA) {
+                        if (shapeB.id == this.enemigo.player.idColisionReventadorPie) {
+                            this.enemigo.body.mass = 10;
+                            this.enemigo.paracaidas.visible = false;
+                            this.enemigo.caer();
+                        }
+                    }
+                }
+            };
+            IAEnemigo.prototype.contactoOtroBody = function (bodyA, bodyB, shapeA, shapeB) {
+                if (this.enemigo.animations.currentAnim.name == "quieto" || this.enemigo.animations.currentAnim.name == "inflandoGlobo") {
+                    if (bodyA && (bodyA.sprite.name == "Jugador" || bodyA.sprite.name == "Globo1") || bodyA.sprite.name == "Globo2") {
+                        this.timerInflarGlobo.stop(false);
+                        if (this.enemigo.animations.currentAnim.name == "inflandoGlobo") {
+                            this.enemigo.reventarGlobo();
+                        }
+                        this.enemigo.body.mass = 10;
+                        this.enemigo.caer();
+                    }
+                }
+                if (this.cayendoParacaidas) {
+                    if (bodyA) {
+                        if (shapeA.id == this.enemigo.idSensorSuelo && bodyA.sprite.name == "Terreno") {
+                            this.enemigo.animations.play("quieto");
+                            this.cayendoParacaidas = false;
+                            this.enemigo.paracaidas.visible = false;
+                            this.timerZigZagCaida.stop();
+                            this.enemigo.body.velocity.x = 0;
+                            this.enemigo.paracaidas.body.velocity.x = 0;
+                            this.enemigo.body.mass = 10;
+                            this.timerInflarGlobo = new Phaser.Timer(this.game, false);
+                            this.game.time.add(this.timerInflarGlobo);
+                            this.timerInflarGlobo.add(3000, this.enemigo.inflarGlobo, this.enemigo);
+                            this.timerInflarGlobo.start();
+                        }
+                    }
+                }
+                if (this.puedeVolar) {
+                    if (bodyA) {
+                        if (shapeA.id == this.enemigo.idColisionRight && bodyA.sprite.name == "Terreno") {
+                            this.cambiarDireccionLeft();
+                        }
+                        else if (shapeA.id == this.enemigo.idColisionLeft && bodyA.sprite.name == "Terreno") {
+                            this.cambiarDireccionRight();
+                        }
+                        else if (shapeA.id == this.enemigo.idColisionBot && bodyA.sprite.name == "Terreno") {
+                            this.cambiarDireccionTop();
+                        }
+                        else if (shapeA.id == this.enemigo.idColisionTop && bodyA.sprite.name == "Terreno") {
+                            this.cambiarDireccionBot();
+                        }
+                        else if ((shapeA.id == this.enemigo.idColisionReventadorPico || shapeA.id == this.enemigo.idColisionReventadorPie) && (bodyA.sprite.name == "Globo1" || bodyA.sprite.name == "Globo2")) {
+                            bodyA.setZeroVelocity();
+                            this.enemigo.player.reventarGlobo(bodyA);
+                            if (this.enemigo.player.globo1 == null && this.enemigo.player.globo2 == null) {
+                                this.enemigo.player.caer();
+                            }
+                        }
+                    }
+                    else {
+                        if (shapeA.id == this.enemigo.idColisionRight) {
+                            this.cambiarDireccionLeft();
+                        }
+                        else if (shapeA.id == this.enemigo.idColisionLeft) {
+                            this.cambiarDireccionRight();
+                        }
+                        else if (shapeA.id == this.enemigo.idColisionBot) {
+                            this.cambiarDireccionTop();
+                        }
+                        else if (shapeA.id == this.enemigo.idColisionTop) {
+                            this.cambiarDireccionBot();
+                        }
+                    }
+                }
+            };
+            IAEnemigo.prototype.cambiarDireccionLeft = function () {
+                this.dir.dirX = this.numeroAleatorio(80, 50);
+                this.timerVolarXNivel.stop(false);
+                this.timerVolarXNivel.start(100);
+            };
+            IAEnemigo.prototype.cambiarDireccionRight = function () {
+                this.dir.dirX = this.numeroAleatorio(-80, -50);
+                this.timerVolarXNivel.stop(false);
+                this.timerVolarXNivel.start(100);
+            };
+            IAEnemigo.prototype.cambiarDireccionTop = function () {
+                this.dir.dirY = this.numeroAleatorio(80, 50);
+                this.timerVolarXNivel.stop(false);
+                this.timerVolarXNivel.start(100);
+            };
+            IAEnemigo.prototype.cambiarDireccionBot = function () {
+                this.dir.dirY = this.numeroAleatorio(-80, -50);
+                this.timerVolarXNivel.stop(false);
+                this.timerVolarXNivel.start(100);
+            };
+            return IAEnemigo;
+        }());
+        BallonFight.IAEnemigo = IAEnemigo;
     })(BallonFight = Elioway.BallonFight || (Elioway.BallonFight = {}));
 })(Elioway || (Elioway = {}));
 var Elioway;
@@ -610,7 +1050,7 @@ var Elioway;
                 //Cabeza
                 _this.cabeza = new Phaser.Sprite(_this.game, _this.x, _this.y, '', '');
                 _this.cabeza.anchor.set(0.5);
-                _this.cabeza.name = 'Cabeza';
+                _this.cabeza.name = 'CabezaJugador';
                 _this.game.physics.p2.enable(_this.cabeza, false);
                 _this.cabeza.body.clearShapes();
                 _this.cabeza.body.setCircle(_this.width / 6, 0, -_this.height / 8);
@@ -639,17 +1079,20 @@ var Elioway;
                 _this.animations.add('tragado', ['Player/Tragado/1', 'Player/Tragado/2', 'Player/Tragado/3', 'Player/Tragado/4', 'Player/Tragado/5', 'Player/Tragado/4', 'Player/Tragado/3', 'Player/Tragado/2'], 20, true);
                 _this.game.physics.p2.enable(_this, false);
                 _this.body.clearShapes();
-                _this.body.setRectangle(_this.width / 1.5, _this.height, 0, 0);
+                _this.body.setRectangle(_this.width / 2, _this.height, 0, 0);
                 _this.body.fixedRotation = true;
                 _this.body.mass = 10;
-                _this.body.addRectangle(_this.width / 1.7, _this.height / 10, 0, _this.height / 1.9);
+                _this.body.addRectangle(_this.width / 2.1, _this.height / 10, 0, _this.height / 1.9);
                 _this.body.data.shapes[1].sensor = true;
                 _this.sensorSuelo = _this.body.data.shapes[1];
+                _this.colisionReventadorPie = _this.body.addRectangle(5, 5, 5, 15);
+                _this.colisionReventadorPie.sensor = true;
+                _this.idColisionReventadorPie = _this.colisionReventadorPie.id;
                 _this.body.onBeginContact.add(_this.triggerSensorSueloIn, _this);
                 _this.body.onEndContact.add(_this.triggerSensorSueloOut, _this);
                 _this.body.collideWorldBounds = true;
-                _this.restriccionGlobo1 = _this.game.physics.p2.createLockConstraint(_this.body, _this.globo1.body, [-_this.width / 6, _this.height / 1.4], 0);
-                _this.restriccionGlobo2 = _this.game.physics.p2.createLockConstraint(_this.body, _this.globo2.body, [_this.width / 6, _this.height / 1.4], 0);
+                _this.restriccionGlobo1 = _this.game.physics.p2.createLockConstraint(_this.body, _this.globo1.body, [-_this.width / 6, _this.height / 1.2], 0);
+                _this.restriccionGlobo2 = _this.game.physics.p2.createLockConstraint(_this.body, _this.globo2.body, [_this.width / 6, _this.height / 1.2], 0);
                 _this.game.physics.p2.createLockConstraint(_this.body, _this.cabeza.body, [0, _this.height / 7], 0);
                 _this.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(_this.game).jugadorMaterial, _this.body.data.shapes[0]);
                 _this.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(_this.game).grupoColisionJugador);
@@ -661,7 +1104,7 @@ var Elioway;
             }
             Jugador.prototype.update = function () {
                 this.gamepad.actualizarTeclado();
-                if (!this.atrapado) {
+                if (!this.atrapado && !this.colisionGlobo) {
                     if ((this.animations.currentAnim.name != 'electrocutado' && this.animations.currentAnim.name != 'cayendo')) {
                         if (this.gamepad.isUpDown()) {
                             if (this.animations.currentAnim.name != 'volando') {
@@ -674,6 +1117,15 @@ var Elioway;
                         }
                         if (this.gamepad.isLeftDown()) {
                             this.setScaleMinMax(-1, 1, -1, 1);
+                            if (this.direccion != "L") {
+                                this.body.removeShape(this.colisionReventadorPie);
+                                this.colisionReventadorPie = this.body.addRectangle(5, 5, -6, 16);
+                                this.colisionReventadorPie.sensor = true;
+                                this.idColisionReventadorPie = this.colisionReventadorPie.id;
+                                this.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(this.game).jugadorMaterial, this.body.data.shapes[0]);
+                                this.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(this.game).grupoColisionJugador);
+                                this.direccion = "L";
+                            }
                             this.body.applyForce([this.fuerzaLateral, 0], 0, 0);
                             if (this.body.velocity.x < -this.velocidadMaxima) {
                                 this.body.velocity.x = -this.velocidadMaxima;
@@ -691,6 +1143,15 @@ var Elioway;
                         }
                         if (this.gamepad.isRightDown()) {
                             this.setScaleMinMax(1, 1, 1, 1);
+                            if (this.direccion != "R") {
+                                this.body.removeShape(this.colisionReventadorPie);
+                                this.colisionReventadorPie = this.body.addRectangle(5, 5, 6, 16);
+                                this.colisionReventadorPie.sensor = true;
+                                this.idColisionReventadorPie = this.colisionReventadorPie.id;
+                                this.body.setMaterial(BallonFight.GestorMaterialesContacto.getInstancia(this.game).jugadorMaterial, this.body.data.shapes[0]);
+                                this.body.setCollisionGroup(BallonFight.GestorGrupos.getInstancia(this.game).grupoColisionJugador);
+                                this.direccion = "R";
+                            }
                             this.body.applyForce([-this.fuerzaLateral, 0], 0, 0);
                             if (this.body.velocity.x > this.velocidadMaxima) {
                                 this.body.velocity.x = this.velocidadMaxima;
@@ -723,28 +1184,63 @@ var Elioway;
             Jugador.prototype.caer = function () {
                 this.play('cayendo');
                 this.body.setZeroVelocity();
-                this.globo1.body.setZeroVelocity();
-                this.globo2.body.setZeroVelocity();
                 this.body.data.shapes[0].sensor = true;
             };
             Jugador.prototype.electrocutar = function () {
                 this.play('electrocutado');
                 this.body.setZeroVelocity();
-                this.globo1.body.setZeroVelocity();
-                this.globo2.body.setZeroVelocity();
+                if (this.globo1 != null) {
+                    this.globo1.body.setZeroVelocity();
+                }
+                if (this.globo2 != null) {
+                    this.globo2.body.setZeroVelocity();
+                }
                 this.body.data.shapes[0].sensor = true;
-                this.reventarGlobo(this.globo1.body);
-                this.reventarGlobo(this.globo2.body);
+                this.reventarGlobos();
             };
             Jugador.prototype.reventarGlobo = function (body) {
                 if (body != null) {
                     if (body.sprite.name == 'Globo1') {
                         this.game.physics.p2.removeConstraint(this.restriccionGlobo1);
+                        this.restriccionGlobo1 = null;
+                        if (this.globo2 != null) {
+                            this.game.physics.p2.removeConstraint(this.restriccionGlobo2);
+                            this.restriccionGlobo2 = this.game.physics.p2.createLockConstraint(this.body, this.globo2.body, [0, this.height / 1.2], 0);
+                        }
+                        body.kinematic = true;
+                        body.data.shapes[0].sensor = true;
                     }
                     else if (body.sprite.name == 'Globo2') {
                         this.game.physics.p2.removeConstraint(this.restriccionGlobo2);
+                        this.restriccionGlobo2 = null;
+                        if (this.globo1 != null) {
+                            this.game.physics.p2.removeConstraint(this.restriccionGlobo1);
+                            this.restriccionGlobo1 = this.game.physics.p2.createLockConstraint(this.body, this.globo1.body, [0, this.height / 1.2], 0);
+                        }
+                        body.kinematic = true;
+                        body.data.shapes[0].sensor = true;
                     }
                     body.sprite.play('reventando', 10, false, true);
+                    if (body.sprite.name == 'Globo1') {
+                        this.globo1 = null;
+                    }
+                    else {
+                        this.globo2 = null;
+                    }
+                }
+            };
+            Jugador.prototype.reventarGlobos = function () {
+                if (this.globo1 != null) {
+                    this.game.physics.p2.removeConstraint(this.restriccionGlobo1);
+                    this.globo1.body.sprite.play('reventando', 10, false, true);
+                    this.globo1.body.setZeroVelocity();
+                    this.globo1 = null;
+                }
+                if (this.globo2 != null) {
+                    this.game.physics.p2.removeConstraint(this.restriccionGlobo2);
+                    this.globo2.body.sprite.play('reventando', 10, false, true);
+                    this.globo2.body.setZeroVelocity();
+                    this.globo2 = null;
                 }
             };
             Jugador.prototype.finElectrocutado = function () {
@@ -768,6 +1264,14 @@ var Elioway;
                 this.atrapado = true;
                 this.animations.play('tragado');
                 this.setScaleMinMax(-1, 1, -1, 1);
+            };
+            Jugador.prototype.establecerColisionGlobo = function () {
+                this.colisionGlobo = true;
+                var timer = this.game.time.create(true);
+                timer.add(100, function () {
+                    this.colisionGlobo = false;
+                }, this);
+                timer.start();
             };
             return Jugador;
         }(Phaser.Sprite));
@@ -805,6 +1309,10 @@ var Elioway;
                 this.constructorTerreno.crearTerrenoSalienteIzquierdo(7, 4, new Phaser.Point(800 - (32 * 7), 480 - (32 * 4)));
                 this.jugador = new BallonFight.Jugador(this.game, 100, 480 - (32 * 4) - 16);
                 this.jugador.body.onBeginContact.add(this.colisionEntreJugadoryElectroEsrella, this);
+                this.enemigos = new Array();
+                this.enemigos.push(new BallonFight.Enemigo(this.game, 800 / 1.15, 480 / 3.3, 'Rosa', this.jugador));
+                this.enemigos.push(new BallonFight.Enemigo(this.game, 800 / 6, 480 / 6, 'Verde', this.jugador));
+                this.enemigos.push(new BallonFight.Enemigo(this.game, 800 / 2, 480 / 2.30, 'Amarillo', this.jugador));
                 this.pez = new BallonFight.Pez(this.game, this.world.centerX, this.game.height + 32);
                 this.pez.seguirJugador(this.jugador);
                 this.oceano = this.constructorOceano.crearOceanoExterior(25, new Phaser.Point(0, 480 - 32));
@@ -819,14 +1327,16 @@ var Elioway;
                     body1.setZeroVelocity();
                     body1.velocity.y = 10;
                 }
-                if (body1.sprite.name == 'Cabeza') {
+                if (body1.sprite.name == 'CabezaJugador') {
                     new BallonFight.Salipicadura(this.game, body1.x, body1.y - this.jugador.height);
                     this.jugador.body.setZeroVelocity();
                     if (this.jugador.animations.currentAnim.name != 'cayendo') {
-                        this.jugador.reventarGlobo(this.jugador.globo1.body);
-                        this.jugador.reventarGlobo(this.jugador.globo2.body);
+                        this.jugador.reventarGlobos();
                         this.jugador.caer();
                     }
+                }
+                if (body1.sprite.name == 'CabezaEnemigo') {
+                    new BallonFight.Salipicadura(this.game, body1.x, body1.y - this.jugador.height);
                 }
             };
             Level1.prototype.colisionEntreJugadoryElectroEsrella = function (body1, body2) {
@@ -1006,7 +1516,6 @@ var Elioway;
                 this.preloadBar.anchor.set(0.5, 0.5);
                 this.load.setPreloadSprite(this.preloadBar);
                 //Cargar los assets aqui.
-                this.load.image('logo', 'assets/ds_logo.png');
                 this.load.atlas('gameAtlas', 'assets/ballonFight.png', 'assets/ballonFight.json', Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
             };
             Preloader.prototype.create = function () {
