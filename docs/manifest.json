@@ -1,0 +1,114 @@
+{
+    "dir": "ltr",
+    "lang": "Spanish; Castilian",
+    "name": "Ballon Fight",
+    "scope": "/BallonFightGame/",
+    "display": "fullscreen",
+    "start_url": "https://elioway.github.io/BallonFightGame/",
+    "short_name": "Ballon Fight",
+    "theme_color": "transparent",
+    "description": "",
+    "orientation": "landscape",
+    "background_color": "transparent",
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "icons": [
+        {
+            "src": "/images/07dc953c-416b-da2a-af61-68b3175580a8.webPlatform.png",
+            "sizes": "44x44",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/b8acb040-2092-a184-5513-e9bcc77119e6.webPlatform.png",
+            "sizes": "48x48",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/f81b6950-d214-ac17-b3d0-fc2a95a56966.webPlatform.png",
+            "sizes": "1240x600",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/4588032a-f997-eff2-22a8-ef5e5a63ed32.webPlatform.png",
+            "sizes": "300x300",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/a54e6002-fc36-0c93-5fbe-1b99f85c765c.webPlatform.png",
+            "sizes": "150x150",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/9bc54bc0-3d3e-f7f2-2fdf-5d6f4cbb7e37.webPlatform.png",
+            "sizes": "88x88",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/13a275e5-9ef0-140c-d6c4-298194f9372a.webPlatform.png",
+            "sizes": "24x24",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/085cf5d0-7c04-7d29-7c58-48cbd0da80b7.webPlatform.png",
+            "sizes": "50x50",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/7696124b-cde4-f251-d3e7-a7a9790288a5.webPlatform.png",
+            "sizes": "620x300",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/536b5ed3-8559-6b22-fca9-89e3931aa431.webPlatform.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/464392b8-9128-b799-cd33-a63ca6ff6cf5.webPlatform.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/e7f5727f-0fde-491b-1986-0e187587e090.webPlatform.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/e7a37b75-5ca9-2138-b05f-bd5ecf8c831c.webPlatform.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/49b5757e-2385-ef54-d2a1-b2030052a7e2.webPlatform.png",
+            "sizes": "36x36",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/804b05f6-dc7d-c738-4d90-86f45b66d013.webPlatform.png",
+            "sizes": "1024x1024",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/76ed1f45-04bb-f742-090d-d21fb978b8c2.webPlatform.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/b242be8d-c050-ab8c-bce6-98637ae9ed36.webPlatform.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/9966e5e9-f540-0e80-7f5e-ec4544b7a91f.webPlatform.png",
+            "sizes": "120x120",
+            "type": "image/png"
+        },
+        {
+            "src": "/images/bc931e59-9049-ce97-8cd2-5790bc6066ee.webPlatform.png",
+            "sizes": "76x76",
+            "type": "image/png"
+        }
+    ],
+    "url": "https://elioway.github.io/BallonFightGame/",
+    "screenshots": []
+}

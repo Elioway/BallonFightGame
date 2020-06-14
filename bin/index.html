@@ -2,9 +2,21 @@
 <html>
 	<head>
 		<title>Simple game</title>
+		<link rel="manifest" href="manifest.json"></link>
 		<script src="js/phaser.js"></script>
 		<script src="js/game.js"></script>
 	</head>
 	<body>
+		
+		<script src="manup.js"></script>
+
+		<script type="module">
+
+			import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+
+			const el = document.createElement('pwa-update');
+			document.body.appendChild(el);
+
+		</script>
 	</body>
 </html>
