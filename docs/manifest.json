@@ -3,7 +3,7 @@
     "lang": "Spanish; Castilian",
     "name": "Ballon Fight",
     "scope": "/BallonFightGame/",
-    "display": "fullscreen",
+    "display": "standalone",
     "start_url": "https://elioway.github.io/BallonFightGame/",
     "short_name": "Ballon Fight",
     "theme_color": "transparent",
