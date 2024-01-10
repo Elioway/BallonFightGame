@@ -150,7 +150,7 @@ module Elioway.BallonFight {
 
         update() {
 
-            this.gamepad.actualizarTeclado();
+            //this.gamepad.actualizarTeclado();
 
             if (!this.atrapado && !this.colisionGlobo) {
 
